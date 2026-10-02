@@ -1,0 +1,744 @@
+<title>沐川食品申訴案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700&family=LXGW+WenKai+TC&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one 720px dossier column on a desk; sticky status strip; manila tabs switch hub views; stamps mark findings */
+:root{
+  --desk:#E6E1D6; --paper:#FCFAF5; --folder:#D6B676; --folder-ink:#4A3813;
+  --ink:#1D2633; --muted:#5B6370; --line:#D8D0C0;
+  --accent:#1C4C8A; --accent-soft:#E3ECF7;
+  --stamp:#B42A22; --stamp-soft:#F8E4E1;
+  --ok:#2B6A3A; --ok-soft:#E1F0E3; --warn:#8A5D00; --warn-soft:#FAF0D6;
+  --note:#FFF3B8; --note-ink:#4B3F00;
+  --f-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-hand:"LXGW WenKai TC","Kaiti TC","DFKai-SB",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --desk:#12171F; --paper:#1C232D; --folder:#6E5629; --folder-ink:#F3E2BC;
+  --ink:#E8E4DB; --muted:#9BA4B0; --line:#303A48;
+  --accent:#86ADE4; --accent-soft:#1F2F46;
+  --stamp:#EE6F66; --stamp-soft:#3A1E1D;
+  --ok:#7CC98C; --ok-soft:#1B3322; --warn:#E6B656; --warn-soft:#3A2F14;
+  --note:#4A4318; --note-ink:#F6ECB5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk:#12171F; --paper:#1C232D; --folder:#6E5629; --folder-ink:#F3E2BC;
+  --ink:#E8E4DB; --muted:#9BA4B0; --line:#303A48;
+  --accent:#86ADE4; --accent-soft:#1F2F46;
+  --stamp:#EE6F66; --stamp-soft:#3A1E1D;
+  --ok:#7CC98C; --ok-soft:#1B3322; --warn:#E6B656; --warn-soft:#3A2F14;
+  --note:#4A4318; --note-ink:#F6ECB5; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--desk);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;padding-inline:16px;padding-block:0 96px}
+#app{max-width:720px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.35;margin:0}
+h1{font-size:clamp(1.7rem,6vw,2.4rem);font-weight:900}
+h2{font-size:1.35rem;font-weight:900}
+h3{font-size:1.05rem;font-weight:600}
+p{margin:0}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mono{font-family:var(--f-mono);font-size:.8rem;letter-spacing:.04em}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:6px;font-weight:700}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink)}
+.btn.stampbtn{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.sheet{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:22px 20px;position:relative}
+.folder{background:var(--paper);border:1px solid var(--line);border-radius:0 6px 6px 6px;padding:22px 20px;margin-top:30px;position:relative}
+.folder::before{content:attr(data-tab);position:absolute;top:-30px;left:-1px;background:var(--folder);color:var(--folder-ink);font-family:var(--f-mono);font-size:.78rem;padding:5px 14px;border-radius:6px 6px 0 0;letter-spacing:.06em}
+.eyebrow{font-family:var(--f-mono);font-size:.76rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.note{background:var(--note);color:var(--note-ink);font-family:var(--f-hand);padding:10px 14px;font-size:1.02rem;transform:rotate(-.6deg);border-radius:2px}
+.warnbox{border:1.5px solid var(--warn);background:var(--warn-soft);color:var(--ink);padding:14px 16px;border-radius:6px}
+.tag{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:3px;border:1px solid var(--line);color:var(--muted);font-family:var(--f-mono)}
+.tag.adapt{border-color:var(--warn);color:var(--warn)}
+
+/* status strip */
+.status{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--desk);padding-block:10px 8px;margin-inline:-16px;padding-inline:16px;border-bottom:1px solid var(--line)}
+.status-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:auto 1fr auto;gap:6px 14px;align-items:center}
+.pts{display:flex;gap:3px;flex-wrap:wrap}
+.pt{width:11px;height:11px;border-radius:50%;background:var(--accent);transition:transform .3s,opacity .3s}
+.pt.used{background:transparent;border:1.5px solid var(--line)}
+.meter{display:flex;gap:4px}
+.seal{width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--line);display:grid;place-items:center;font-size:.62rem;font-family:var(--f-mono);color:var(--muted)}
+.seal.g{border:2px solid var(--ok);color:var(--ok)} .seal.p{border:2px solid var(--warn);color:var(--warn)} .seal.b{border:2px solid var(--stamp);color:var(--stamp)}
+
+/* tabs */
+.tabs{display:flex;gap:4px;margin-top:22px;border-bottom:2px solid var(--folder)}
+.tab{border:none;background:transparent;color:var(--muted);padding:8px 14px;border-radius:6px 6px 0 0;font-weight:700}
+.tab[aria-selected="true"]{background:var(--folder);color:var(--folder-ink)}
+
+/* cards */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:4px}
+.card-h{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;width:100%;text-align:left;background:none;border:none;color:inherit}
+.card-h .code{font-family:var(--f-mono);font-size:.78rem;color:var(--accent);min-width:3.2em;padding-top:3px}
+.card-h .t{flex:1;min-width:0}
+.card-b{padding:0 14px 14px 14px;border-top:1px dashed var(--line);padding-top:12px}
+.quote{border-left:3px solid var(--line);padding-left:12px;margin:6px 0}
+.line{display:grid;grid-template-columns:4.2em 1fr;gap:6px}
+.line b{font-weight:700;color:var(--accent)}
+.cost{font-family:var(--f-mono);font-size:.78rem;border:1px solid var(--accent);color:var(--accent);border-radius:20px;padding:1px 9px;white-space:nowrap}
+.lock{color:var(--muted);font-size:.85rem}
+.sel{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted);padding:4px 14px 10px 14px}
+.card.picked{outline:2px solid var(--stamp);outline-offset:-1px}
+.found-mark{font-family:var(--f-mono);font-size:.7rem;color:var(--stamp);border:1.5px solid var(--stamp);padding:0 5px;border-radius:3px;transform:rotate(-4deg);display:inline-block}
+
+.person{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:14px;align-items:start}
+.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:900;background:var(--accent-soft);color:var(--accent)}
+.actions{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.act{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);background:var(--desk);color:var(--ink);padding:8px 12px;border-radius:5px;text-align:left}
+.act:disabled{opacity:.55;cursor:not-allowed}
+.act.done{background:transparent;border-style:dashed;color:var(--muted)}
+
+/* bar for marking */
+.markbar{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--ink);color:var(--paper);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+.markbar-in{max-width:720px;margin:0 auto;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.markbar .btn{background:var(--stamp);border-color:var(--stamp);color:#fff}
+.markbar .btn.ghost{background:transparent;border-color:var(--paper);color:var(--paper)}
+
+/* overlay */
+#overlay{position:fixed;inset:0;z-index:20;background:rgba(10,14,20,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+#overlay[hidden]{display:none!important}
+.dialog{background:var(--paper);color:var(--ink);max-width:640px;width:100%;max-height:88vh;overflow:auto;border-radius:8px;padding:22px 20px;position:relative}
+@media (min-width:700px){#overlay{align-items:center}}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--desk);color:var(--ink);padding:12px 14px;border-radius:6px}
+.opt:hover{border-color:var(--accent)}
+.verdict{display:inline-block;font-family:var(--f-display);font-weight:900;font-size:1.15rem;padding:2px 12px;border:3px solid currentColor;border-radius:4px;transform:rotate(-3deg)}
+.v-g{color:var(--ok)} .v-p{color:var(--warn)} .v-b{color:var(--stamp)}
+.law{font-size:.88rem;background:var(--accent-soft);padding:10px 12px;border-radius:5px}
+
+/* stamp animation */
+.bigstamp{font-family:var(--f-display);font-weight:900;color:var(--stamp);border:4px double var(--stamp);font-size:1.6rem;padding:4px 16px;display:inline-block;transform:rotate(-8deg)}
+@media (prefers-reduced-motion:no-preference){
+  .bigstamp{animation:thump .45s cubic-bezier(.2,1.6,.4,1)}
+  @keyframes thump{0%{transform:rotate(-8deg) scale(2.2);opacity:0}100%{transform:rotate(-8deg) scale(1);opacity:1}}
+  .pt.flash{animation:pop .5s}
+  @keyframes pop{50%{transform:scale(1.7)}}
+  #toast.show{animation:rise .3s}
+  @keyframes rise{from{transform:translate(-50%,12px);opacity:0}}
+}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--paper);padding:8px 16px;border-radius:20px;font-size:.9rem;max-width:calc(100% - 32px);pointer-events:none}
+#toast:empty{display:none}
+
+/* intro */
+.cover{margin-top:28px;background:var(--folder);color:var(--folder-ink);border-radius:4px 10px 10px 4px;padding:28px 22px 26px}
+.cover h1{color:var(--folder-ink)}
+.cover .mono{color:var(--folder-ink);opacity:.8}
+.label-strip{background:var(--paper);color:var(--ink);padding:12px 14px;border-radius:3px;margin-top:18px;font-family:var(--f-hand);font-size:1.1rem}
+
+/* ending */
+.scores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.score{background:var(--desk);border-radius:6px;padding:12px}
+.score .n{font-family:var(--f-mono);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.vs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.vs>div{background:var(--desk);border-radius:6px;padding:12px;min-width:0}
+@media (max-width:480px){.scores{grid-template-columns:1fr}.vs{grid-template-columns:1fr}}
+.ach{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
+.ach .ic{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;border:1.5px solid var(--line);color:var(--muted)}
+.ach.on .ic{border-color:var(--stamp);color:var(--stamp)}
+ol.ev,ul.ev{margin:0;padding-left:1.4em}
+ol.ev li,ul.ev li{margin:2px 0}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border:1px solid var(--line);border-radius:5px;background:var(--desk)}
+.chk input{margin-top:6px;accent-color:var(--accent)}
+.err{color:var(--stamp);font-size:.85rem}
+.plan svg{width:100%;max-width:320px;height:auto}
+</style>
+
+<div class="status" id="status" hidden></div>
+<div id="app"></div>
+<div id="overlay" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const TOTAL = 12;
+const esc = s => s;
+
+/* ---------- 卷宗資料 ---------- */
+const PEOPLE = {
+  lin:{name:'林以晴',role:'申訴人｜職業衛生護理師（廠護），年資約 4 年',ini:'林'},
+  han:{name:'韓靜宜',role:'被申訴人｜資深廠護',ini:'韓'},
+  hsu:{name:'許文豪',role:'安全衛生部門主任｜兩人的直屬主管',ini:'許'},
+  du:{name:'杜經理',role:'部門經理｜主持過工作分配會議',ini:'杜'},
+  ye:{name:'葉主任',role:'總務主任｜和兩人都談過話',ini:'葉'}
+};
+
+const EVENTS16 = [
+  '被申訴人告訴主管「申訴人不用參加部門會議」',
+  '拒絕交出醫務室的備用鑰匙',
+  '到申訴人座位拍桌，當眾指責她亂講話',
+  '指責申訴人沒完成「從來沒交接過」的新人健檢追蹤',
+  '向主管哭訴被申訴人針對，害申訴人被約談',
+  '拖延、拒絕接收申訴人移交的業務',
+  '在疫苗業務分配會議上推託工作',
+  '交辦任務指示模糊，最後回「算了，我自己做」',
+  '轉述不實的指示，讓申訴人在寒風中發放捐血禮物卡',
+  '對申訴人詢問的工作細節不予回應',
+  '（已提出刑事告訴，偵查中）',
+  '兩人長期無法分工合作',
+  '（另向勞動檢查機構檢舉的事項，不在本次調查範圍）',
+  '向主管表示自己做不來，要求把業務移給申訴人',
+  '被迫寫信向被申訴人道歉',
+  '（已提出刑事告訴，偵查中）'
+];
+
+const I = {
+  E1:{code:'E1',kind:'ev',title:'申訴信與 16 項事件清單',type:'書面',cost:0,party:'lin',
+    body:()=>`<p>申訴人主張，約三年半間，被申訴人對她做了以下 16 件事，使她長期被孤立、刁難：</p><ol class="ev small">${EVENTS16.map(e=>`<li>${e}</li>`).join('')}</ol>`},
+  E2:{code:'E2',kind:'ev',title:'重度憂鬱症診斷證明',type:'醫療',cost:0,party:'lin',
+    body:()=>`<p>診斷：重度憂鬱症。申訴約三個月前初診，之後定期回診；醫囑建議休養。</p><p class="muted small">診斷證明能證明「生病了」，但不能單獨證明「是誰造成的」。</p>`},
+  E11:{code:'E11',kind:'ev',title:'人資提出的座位調整方案',type:'書面',cost:0,party:'co',
+    body:()=>`<p>人資蘇經理的簽呈：「申訴期間，建議將兩位護理師集中到醫務室辦公，<b>方便主任就近觀察兩人互動</b>。」</p>
+    <div class="plan" aria-label="座位方案示意：兩張辦公桌呈 L 型，只隔一台螢幕">
+    <svg viewBox="0 0 320 170" role="img"><title>醫務室座位方案示意圖</title>
+      <rect x="6" y="6" width="308" height="158" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="16" y="26" fill="var(--muted)" font-size="12">醫務室（開放空間）</text>
+      <rect x="70" y="60" width="130" height="36" fill="var(--accent-soft)" stroke="var(--accent)"/>
+      <rect x="200" y="60" width="36" height="90" fill="var(--stamp-soft)" stroke="var(--stamp)"/>
+      <rect x="192" y="66" width="10" height="24" fill="var(--ink)"/>
+      <text x="96" y="83" fill="var(--accent)" font-size="13">林以晴</text>
+      <text x="244" y="110" fill="var(--stamp)" font-size="13">韓靜宜</text>
+      <text x="150" y="130" fill="var(--muted)" font-size="11">中間只隔一台螢幕</text>
+    </svg></div>`},
+  E13:{code:'E13',kind:'ev',title:'刑事告訴資訊',type:'陳述',cost:0,party:'lin',
+    body:()=>`<p>申訴人表示，清單中第 11、16 件事已向檢察署提出刑事告訴，目前偵查中，結果未出爐。</p>`},
+  G:{code:'準則',kind:'rule',title:'準則小卡：接到申訴後，公司要立刻做的事',type:'條文摘要',cost:0,party:'rule',
+    body:()=>`<p class="small">《職場霸凌防治措施準則》第 7 條（白話）：公司接到申訴時，應立即：</p>
+    <ul class="ev small"><li><b>考量申訴人意願</b>，採取適當的<b>隔離</b>措施，避免情況再發生，且不得對申訴人有不利對待。</li>
+    <li>依申訴人需求，提供或轉介法律諮詢、醫療或心理諮商等協助。</li>
+    <li>啟動調查；申訴人願意的話可以協調，協調不成就繼續調查。</li>
+    <li>依調查結果，對行為人適當懲戒或處理。</li></ul>`},
+
+  T_lin:{code:'證詞',kind:'tm',who:'lin',title:'林以晴：初次陳述',cost:1,party:'lin',
+    body:()=>`<p class="quote">「她這三年一直在孤立我、刁難我。開會不讓我參加，交辦工作只給模糊的指示，事後又在主管面前說我沒做好。我已經看了三個月的醫生。」</p>`},
+  T_lin_q1:{code:'追問',kind:'tm',who:'lin',title:'追問林以晴：疫苗業務是誰推給誰？',cost:1,req:['T_lin'],party:'lin',
+    body:()=>`<p class="quote">「是她一直推託，最後經理只好指定我統一負責。」</p>`},
+  T_lin_q2:{code:'追問',kind:'tm',who:'lin',title:'追問林以晴：那封道歉信是怎麼回事？',cost:1,req:['T_lin'],reqC:'C2',party:'lin',adapt:true,
+    body:()=>`<p class="quote">「信是我寫的沒錯……但我是被逼到只能道歉。」</p>`},
+  T_han:{code:'證詞',kind:'tm',who:'han',title:'韓靜宜：初次陳述',cost:1,party:'han',
+    body:()=>`<p class="quote">「很多事我都忘記了。我們是有工作上的摩擦，但我沒有霸凌她。」</p>`},
+  T_han_q1:{code:'追問',kind:'tm',who:'han',title:'追問韓靜宜：那場會議錄音',cost:1,req:['T_han'],reqC:'C1',party:'han',
+    body:()=>`<p class="quote">「她把會議錄音剪成片段傳給產線同仁，說我推託工作。我也很受傷，當時就想提出申訴，是主任勸我再給她一次機會。這幾年我壓力也很大。」</p>`},
+  T_han_q2:{code:'追問',kind:'tm',who:'han',title:'追問韓靜宜：拍桌那天發生什麼事？',cost:1,req:['T_han'],reqC:'C3',party:'han',adapt:true,
+    body:()=>`<p class="quote">「那天討論工作分配，我語氣比較重，事後有傳訊息向她道歉。但我沒有破口大罵。」</p>`},
+  T_hsu:{code:'證詞',kind:'tm',who:'hsu',title:'許文豪主任：初次陳述',cost:1,party:'neutral',
+    body:()=>`<p class="quote">「她們兩個就是處不來。我一直想幫她們解圍，但真的很難。」</p>`},
+  T_hsu_q:{code:'追問',kind:'tm',who:'hsu',title:'追問許主任：工作是怎麼分的？',cost:1,req:['T_hsu'],party:'neutral',adapt:true,
+    body:()=>`<p class="quote">「業務是主管聽過各方意見後分配的，不是誰去排擠誰。」</p>`},
+  T_du:{code:'證詞',kind:'tm',who:'du',title:'杜經理：初次陳述',cost:1,party:'neutral',
+    body:()=>`<p class="quote">「分配疫苗業務那天，我本來比較希望由韓靜宜負責，是林以晴自己說『那我來負責』。」</p>`},
+  T_ye:{code:'證詞',kind:'tm',who:'ye',title:'葉主任：初次陳述',cost:1,party:'neutral',
+    body:()=>`<p class="quote">「林以晴寄了那封道歉信。我跟韓靜宜聊到時，我的理解是林以晴覺得自己沒安排好，所以先道歉。」</p>`},
+
+  E3:{code:'E3',kind:'ev',title:'工作分配會議錄音譯文',type:'錄音',cost:2,party:'neutral',
+    body:()=>`<p class="muted small">約一年半前，部門會議討論疫苗接種業務由誰負責。</p>
+    <div class="stack small" style="gap:6px;margin-top:8px">
+    <div class="line"><b>林以晴</b><span>「經理算了，你們不要再去弄那個了啦。如果靜宜姊那邊已經忙到沒辦法處理，那我自己負責，這樣好不好？」</span></div>
+    <div class="line"><b>杜經理</b><span>「妳們兩個要先有共識、先溝通過……我比較希望由韓靜宜負責。」</span></div>
+    <div class="line"><b>韓靜宜</b><span>「因為現在大家覺得窗口不統一，一下找我、一下找她，都不知道要找誰。」</span></div></div>`},
+  E4:{code:'E4',kind:'ev',title:'林以晴與許主任的談話錄音譯文',type:'錄音',cost:2,party:'neutral',
+    body:()=>`<p class="muted small">申訴約十個月前，由林以晴錄音。</p>
+    <div class="stack small" style="gap:6px;margin-top:8px">
+    <div class="line"><b>林以晴</b><span>「我不想幫她收爛攤子。」</span></div>
+    <div class="line"><b>許主任</b><span>「當然，我不會叫妳去補她那兩個計畫。那她要做什麼？」</span></div>
+    <div class="line"><b>林以晴</b><span>「她每天追劇吧？」</span></div>
+    <div class="line"><b>許主任</b><span>「……一定有個存在很久的疙瘩。我一直想試著讓妳們解圍，可是看來真的很難。」</span></div></div>`},
+  E5:{code:'E5',kind:'ev',title:'郵件串：「算了，我自己做就好」',type:'郵件',cost:1,party:'neutral',
+    body:()=>`<div class="stack small" style="gap:6px">
+    <div class="line"><b>韓</b><span>（副本主任）「目前業務是我主導，妳是副主導，應該是我指派工作項目後妳再去執行。」</span></div>
+    <div class="line"><b>林</b><span>逐項回信詢問要怎麼做、做到什麼程度。</span></div>
+    <div class="line"><b>韓</b><span>只複製部分問題回覆，沒有給具體指示。</span></div>
+    <div class="line"><b>林</b><span>再次去信確認細節。</span></div>
+    <div class="line"><b>韓</b><span>「算了～我自己做就可以了。」</span></div></div>
+    <p class="muted small" style="margin-top:8px">韓靜宜的說明：這項業務有公開的技術指引，申訴人負責一年多仍無法完成危害告知，她才決定自己做。</p>`},
+  E6:{code:'E6',kind:'ev',title:'申訴人寄出的道歉信',type:'郵件',cost:1,party:'neutral',
+    body:()=>`<p class="muted small">申訴前一週，林以晴寄給韓靜宜，<b>並主動副本給許主任</b>。</p>
+    <p class="quote">主旨：今早同仁提早到醫務室諮詢，真的很抱歉<br>「真的很對不起！！！以後不會再有這種事情發生了！一定會遵循您指示的前後 30 分鐘不要約！」</p>`},
+  E7:{code:'E7',kind:'ev',title:'拍桌事件：申訴人陳述與道歉訊息',type:'陳述＋訊息',cost:1,party:'lin',
+    body:()=>`<p>林以晴陳述：約三年前，兩人對一項業務該由哪個部門負責有歧見。隔天韓靜宜到她位在大辦公室的座位，在很多同事面前拍桌，大聲指責她亂講話。</p>
+    <p style="margin-top:6px">林以晴另外提出一張截圖：<b>事後韓靜宜曾傳訊息向她道歉。</b></p>`},
+  E8:{code:'E8',kind:'ev',title:'捐血活動事件：兩造說法',type:'陳述',cost:1,party:'neutral',
+    body:()=>`<p><b>林以晴：</b>韓靜宜說司機大哥不讓她在車上發禮物卡，她只好下車在寒風中發。事後問司機，司機說沒講過。</p>
+    <p style="margin-top:6px"><b>韓靜宜：</b>活動剛開始時車上人多，司機請大家先不要上車，我只是如實轉達。後來看她在外面吹風，還叫她上車。</p>`},
+  E9:{code:'E9',kind:'ev',title:'申訴人的職務說明書',type:'書面',cost:1,party:'co',
+    body:()=>`<p>職稱：職業衛生護理師（廠護）。</p><p>職掌節錄：育齡女性員工的危害辨識與告知；<b>職場不法侵害的危害辨識與改善建議</b>。</p>
+    <p style="margin-top:6px"><b>全廠醫護人員編制：2 名（林以晴、韓靜宜）。</b></p>`},
+  E10:{code:'E10',kind:'ev',title:'公司「不法侵害預防規範」節錄',type:'規章',cost:1,party:'co',
+    body:()=>`<p class="quote">「發生職場不法侵害事件時，<b>由醫護人員</b>提供受害者心理健康協助及輔導。」</p>
+    <div class="note" style="margin-top:10px">規範寫由醫護人員輔導……這家廠有幾位醫護人員？</div>`},
+  E12:{code:'E12',kind:'ev',title:'主管交辦紀錄',type:'陳述',cost:2,party:'lin',
+    body:()=>`<p>林以晴陳述：申訴約一年多前，許主任要她特別留意韓靜宜的業務，說以後會慢慢把那些工作交給她。</p>
+    <p class="muted small" style="margin-top:6px">韓靜宜在調查中沒有針對這件事回應。許主任表示不記得確切用語。</p>`}
+};
+const FREE = ['E1','E2','E11','E13','G'];
+const EV_LIST = ['E3','E4','E5','E6','E7','E8','E9','E10','E12'];
+const KEY_EV = ['E3','E4','E6','E9','E10'];
+
+const CONTRA = [
+  {id:'C1',pairs:[['T_lin_q1','E3'],['T_lin_q1','T_du']],title:'疫苗業務：是誰主動接下的？',
+    text:'林以晴說是被推給她的；但錄音和經理的說法都顯示，是她自己主動表示要負責。',unlock:'可以追問韓靜宜「那場會議錄音」'},
+  {id:'C2',pairs:[['E1','E6'],['E1','T_ye']],title:'道歉信是被迫的嗎？',
+    text:'申訴清單把道歉信列為霸凌，但信是申訴人自己寄出，還主動副本給主管；旁人理解也是她為自己的疏失致歉。',unlock:'可以追問林以晴「那封道歉信」'},
+  {id:'C3',pairs:[['T_han','E7']],title:'真的「忘記了」嗎？',
+    text:'韓靜宜說很多事都忘了，但拍桌事件後她曾傳訊息道歉。如果不記得，為什麼會道歉？',unlock:'可以追問韓靜宜「拍桌那天」'},
+  {id:'C4',pairs:[['E10','E9']],title:'誰來輔導申訴人？',
+    text:'規範說由醫護人員輔導，但全廠只有兩位護理師，正好就是申訴人和被申訴人。這條規範在本案根本無法執行。',unlock:'之後的程序關卡會出現新選項'},
+  {id:'C5',pairs:[['E11','G']],title:'這是隔離，還是更靠近？',
+    text:'準則要求考量申訴人意願、採取隔離措施；人資方案卻把兩人搬進同一個開放空間，中間只隔一台螢幕。',unlock:'受理決定時會有提示'}
+];
+
+/* ---------- 程序關卡 ---------- */
+const PROC = {
+  P1:{title:'P1｜受理當天：要怎麼保護申訴人？',when:'D 日',
+    scene:'人資蘇經理拿著座位方案來找你：「申訴期間，我建議把兩位護理師集中到醫務室，主任比較好就近觀察。你們小組同意的話，今天就可以搬。」',
+    opts:[
+      {k:'A',t:'先問申訴人的意願，把兩人的工作場所分開；業務聯繫改由主任轉達。',s:20,v:'g',
+       why:'準則要求公司接到申訴後，<b>考量申訴人意願</b>採取適當隔離。分開工作場所、減少兩人直接接觸，才是保護。',real:'原案公司正好反過來做：把原本在不同辦公室的兩人，調到同一間醫務室、L 型座位、只隔一台螢幕。法院認為這樣安排「並非必要，而且失當」，是公司被判賠償的主因之一；法院也提到，公司只要花一點錢加高隔板都沒做。'},
+      {k:'B',t:'採用人資方案：兩人搬到同一間醫務室，方便主管觀察。',s:0,v:'b',
+       why:'這不是隔離，而是讓兩人更靠近。對一位剛附上重度憂鬱症診斷的申訴人來說，每天坐在被申訴人旁邊，只會加重壓力。',real:'這正是原案公司的做法。法院認為這樣安排並非必要、而且失當，是公司違反保護義務的核心事實。'},
+      {k:'C',t:'申訴人正在請假，先暫停她的系統與群組權限，避免資料外流。',s:0,v:'b',
+       why:'準則明定不得對申訴人有不利對待（第 7 條、第 20 條）。申訴期間無故移除權限，容易被看成是在懲罰提出申訴的人。',real:'原案中，申訴人在調查結果出爐前就被移除工作群組權限，法院在決定賠償時一併考量。'}
+    ],law:'準則第 7 條第 1 款第 1 目、第 20 條'},
+  P3:{title:'P3｜調查小組要找誰？',when:'D+2',
+    scene:'沐川食品有約 400 名員工。依新制，100 人以上的公司調查霸凌申訴，必須另組調查小組。總經理問你名單怎麼排。',
+    opts:[
+      {k:'A',t:'3 人小組：2 位外部專業人士＋1 位受過訓練的人資同仁，男女都有；許主任不參加。',s:20,v:'g',
+       why:'100 人以上的公司，調查小組至少 3 人，外部專業人士不少於一半，任一性別不少於三分之一。許主任是兩人的直屬主管，也是事件相關人，應該迴避。',real:'判決沒有評價原案公司的調查小組怎麼組成。這一關依新準則設計。'},
+      {k:'B',t:'由許主任加杜經理兩人負責，他們最熟悉狀況，也最快。',s:0,v:'b',
+       why:'人數不足、沒有外部成員；而且兩人都在事件中出現過（分配工作、主持會議），有偏頗之虞，應該迴避。這在新制下屬於「重大瑕疵」，主管機關可以要求重新調查。',real:'判決沒有評價原案公司的調查小組怎麼組成。這一關依新準則設計。'},
+      {k:'C',t:'5 人小組：廠長、人資、總務、工安 4 位主管，加 1 位外部律師。',s:0,v:'b',
+       why:'人數夠了，但外部專業人士只有 1/5，低於法定的二分之一。內部主管占多數，外界很難相信調查中立。',real:'判決沒有評價原案公司的調查小組怎麼組成。這一關依新準則設計。'}
+    ],law:'準則第 14 條、第 15 條、第 22 條第 4 項'},
+  P4:{title:'P4｜訪談要怎麼進行？',when:'D+3',
+    scene:'第一次約談前，小組要決定訪談規則。有委員提議：「乾脆請兩個人一起來，當面把話講清楚，比較省時間。」',
+    opts:[
+      {k:'A',t:'以書面分別通知兩造，分開訪談、全程錄音並作成紀錄；給被申訴人完整的答辯機會。',s:20,v:'g',
+       why:'準則要求書面通知、分別訪談、錄音錄影輔助並作成紀錄，而且兩造都要有陳述意見與答辯的機會。',real:'判決沒有評價原案公司的訪談方式。這一關依新準則設計。'},
+      {k:'B',t:'請兩人一起到場當面對質，一次把話講清楚。',s:0,v:'b',
+       why:'準則明文規定：調查過程不得令當事人或協助調查的人對質。對質容易讓申訴人再次受傷，也讓證人不敢說實話。',real:'判決沒有評價原案公司的訪談方式。這一關依新準則設計。'},
+      {k:'C',t:'只訪談申訴人就好，她是受害者，不必再去刺激被申訴人。',s:0,v:'b',
+       why:'還沒調查就先認定誰是受害者，本身就不公正。沒給當事人任一方陳述意見的機會，屬於「重大瑕疵」，調查結論可能被要求重做。',real:'判決沒有評價原案公司的訪談方式。這一關依新準則設計。'}
+    ],law:'準則第 16 條、第 22 條第 4 項第 2 款'},
+  P2:{title:'P2｜申訴人需要什麼協助？',when:'調查中',
+    scene:'林以晴請了病假，傳訊息問你：「公司有沒有什麼可以幫我的？我現在每天都睡不著。」',
+    opts:[
+      {k:'A',t:'依她的需求，轉介外部心理諮商或安排醫師面談，費用由公司負擔。',s:20,v:'g',need:'C4',
+       why:'準則要求依申訴人需求，提供或<b>轉介</b>醫療或心理諮商。本案廠內只有兩位護理師，就是兩造當事人，只能找外部資源。',real:'原案公司的規範寫由醫護人員輔導，但兩名醫護就是兩造，結果公司<b>什麼諮詢或輔導都沒提供</b>。法院特別指出：負責這項業務的勞工本人，並沒有被排除在保護範圍之外。'},
+      {k:'B',t:'照公司規範，由廠內醫護人員提供輔導。',s:0,v:'b',
+       why:'廠內醫護人員只有兩位：申訴人自己，和被申訴人。照規範走，等於讓被申訴人去輔導申訴人。',real:'原案公司正是卡在這條規範，最後什麼輔導都沒提供，被法院認定違反保護義務。'},
+      {k:'C',t:'建議她先安心請假休養，等調查結束再說。',s:10,v:'p',
+       why:'讓她休養沒有錯，但準則要求的是「提供或轉介」協助。只讓她請假、沒有任何支持，仍然不夠。',real:'原案公司同意申訴人以請假方式處理，但沒有提供任何諮詢或輔導，法院認定違反保護義務。'}
+    ],law:'準則第 7 條第 1 款第 2 目；職業安全衛生法第 22 條、勞工健康保護規則第 9 條'},
+  P5:{title:'P5｜申訴人要求一週內給結論',when:'調查中',
+    scene:'林以晴來信：「我已經撐不下去了，請你們一週內告訴我結果。」總經理也希望早點結案。',
+    opts:[
+      {k:'A',t:'說明依法最長 2 個月完成調查報告（必要時可延長 1 個月）；決定後以書面載明理由通知，並告知申復方式。',s:20,v:'g',
+       why:'調查報告原則 2 個月內完成、最多延長 1 個月；決定作成後 10 個工作日內，以書面載明事實與理由通知兩造，並告知申復的方法與期限。',real:'判決沒有評價原案公司的結案程序。這一關依新準則設計。（原案公司約一個月內就作成「不成立」的決議。）'},
+      {k:'B',t:'為了回應申訴人，一週內結案，只回覆「不成立」三個字。',s:0,v:'b',
+       why:'倉促結案容易漏掉重要事證；只寫結論不寫理由、不告知申復方式，當事人無從救濟。',real:'判決沒有評價原案公司的結案程序。這一關依新準則設計。'},
+      {k:'C',t:'答應兩個月內完成，但結果用口頭告知就好，比較有溫度。',s:10,v:'p',
+       why:'時程正確，但準則要求決定必須以<b>書面</b>載明事實與理由，並告知申復方式。口頭告知不符合規定。',real:'判決沒有評價原案公司的結案程序。這一關依新準則設計。'}
+    ],law:'準則第 17 條、第 18 條、第 22 條'}
+};
+const PORDER = ['P1','P2','P3','P4','P5'];
+
+/* ---------- 狀態 ---------- */
+let S;
+function fresh(){ return {phase:'intro',tab:'talk',owned:[...FREE],spent:0,found:[],wrong:0,picks:[],proc:{},open:{},concl:null,err:''}; }
+S = window.claude?.hot?.data?.S || fresh();
+window.claude?.hot?.snapshot?.(()=>({S}));
+
+const has = id => S.owned.includes(id);
+const found = c => S.found.includes(c);
+const left = () => TOTAL - S.spent;
+const dayLabel = () => S.phase==='brief'?'D 日': (['P1'].includes(S.phase)?'D 日':`D+${3 + S.spent*4}`);
+
+/* ---------- 工具 ---------- */
+const $ = s => document.querySelector(s);
+let toastT;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.textContent='',2600); }
+function overlay(html){ const o=$('#overlay'); o.innerHTML=`<div class="dialog" role="dialog" aria-modal="true">${html}</div>`; o.hidden=false; const f=o.querySelector('button'); f&&f.focus(); }
+function closeOverlay(){ $('#overlay').hidden=true; $('#overlay').innerHTML=''; }
+
+/* ---------- 狀態列 ---------- */
+function renderStatus(){
+  const st=$('#status');
+  if(['intro','end'].includes(S.phase)){ st.hidden=true; return; }
+  st.hidden=false;
+  const pts=Array.from({length:TOTAL},(_,i)=>`<span class="pt ${i<S.spent?'used':''}"></span>`).join('');
+  const seals=PORDER.map(p=>{const r=S.proc[p]; const c=r?({g:'g',p:'p',b:'b'})[r.v]:''; return `<span class="seal ${c}" title="${p}">${p}</span>`}).join('');
+  st.innerHTML=`<div class="status-in">
+    <div><div class="mono">CASE 01</div><div style="font-weight:700">${dayLabel()}</div></div>
+    <div><div class="small muted">調查點數 ${left()} / ${TOTAL}</div><div class="pts" aria-label="剩餘 ${left()} 點">${pts}</div></div>
+    <div style="text-align:right"><div class="small muted">矛盾 ${S.found.length}/5</div><div class="meter" aria-label="程序關卡">${seals}</div></div>
+  </div>`;
+}
+
+/* ---------- 畫面 ---------- */
+function render(){
+  renderStatus();
+  const a=$('#app');
+  if(S.phase==='intro') a.innerHTML=viewIntro();
+  else if(S.phase==='brief'||S.phase==='hub') a.innerHTML=viewHub();
+  else if(S.phase==='concl') a.innerHTML=viewConcl();
+  else if(S.phase==='end') a.innerHTML=viewEnd();
+  renderMarkbar();
+}
+
+function viewIntro(){
+  return `<div class="cover">
+    <div class="mono">職場霸凌申訴調查卷宗 · CASE 01</div>
+    <h1 style="margin-top:10px">兩個護理師，<br>一間醫務室</h1>
+    <p style="margin-top:12px">北部某工業區的食品加工廠「沐川食品」，全廠只有兩位廠護。其中一位寄出申訴信，指控另一位三年多來孤立、刁難她，附上一張重度憂鬱症診斷證明。</p>
+    <div class="label-strip">你的身分：公司依新制組成的職場霸凌調查小組。<br>你要保護申訴人，也要公平聽取兩造，最後做出結論。</div>
+  </div>
+  <div class="sheet stack" style="margin-top:18px">
+    <div class="eyebrow">開始之前</div>
+    <div class="warnbox small"><b>內容提醒：</b>本遊戲涉及職場霸凌與身心健康的情節。如果你正在經歷類似的處境，可以先暫停，照顧好自己。需要協助時，可撥打勞動部職場霸凌諮詢或 1925 安心專線。</div>
+    <p class="small muted">本遊戲改編自台灣法院公開判決，人物、機構、產業與地點均為虛構，部分訪談情境為遊戲改編（會標示「改編」）。內容僅供教育與體驗，不構成法律意見。程序關卡依 2026 年 7 月 1 日施行的《職場霸凌防治措施準則》設計。</p>
+    <div class="small">
+      <b>玩法</b>
+      <ul class="ev"><li>你有 <b>12 點調查點數</b>。約談、追問、調閱證據都要花點數，查不完所有線索。</li>
+      <li>在卷宗裡選兩份資料，按「標記矛盾」。找對會解鎖新線索。</li>
+      <li>過程中會遇到 <b>5 個程序關卡</b>，選完立刻知道對錯。</li>
+      <li>最後寫下結論，再看法院怎麼判。預計 20 分鐘。</li></ul>
+    </div>
+    <div class="row"><button class="btn" data-go="brief">打開卷宗</button></div>
+  </div>`;
+}
+
+function itemCard(id,mode){
+  const it=I[id]; const open=S.open[id]; const picked=S.picks.includes(id);
+  const who=it.who?PEOPLE[it.who].name:'';
+  const tags=`${it.adapt?'<span class="tag adapt">改編</span>':''} ${it.type?`<span class="tag">${it.type}</span>`:''}`;
+  const markedIn=CONTRA.filter(c=>found(c.id)&&c.pairs.some(p=>p.includes(id))).map(c=>c.id);
+  return `<div class="card ${picked?'picked':''}">
+    <button class="card-h" data-toggle="${id}" aria-expanded="${!!open}">
+      <span class="code">${it.code}</span>
+      <span class="t"><span style="font-weight:700">${it.title}</span> ${markedIn.length?`<span class="found-mark">${markedIn.join(' ')}</span>`:''}<br><span class="small muted">${tags}</span></span>
+      <span class="muted" aria-hidden="true">${open?'−':'+'}</span>
+    </button>
+    ${open?`<div class="card-b">${it.body()}</div>`:''}
+    <label class="sel"><input type="checkbox" data-pick="${id}" ${picked?'checked':''}> 選取比對</label>
+  </div>`;
+}
+
+function viewHub(){
+  const brief=S.phase==='brief';
+  let head;
+  if(brief) head=`<div class="folder stack" data-tab="D 日 · 受理當天">
+      <h2>申訴信剛送到</h2>
+      <p>林以晴寄出申訴信，附上 16 件事件清單與診斷證明。人資也送來一份座位調整方案等你批。</p>
+      <p class="small muted">先讀卷宗。受理當天就要決定兩件事：怎麼保護申訴人，以及調查小組找誰。約談和調閱要等小組組成後才能開始。</p>
+      <div class="note">小提示：卷宗裡的資料可以兩兩比對。現在就能找到一組矛盾。</div>
+      <div class="row"><button class="btn" data-go="P1">進入受理決定</button></div>
+    </div>`;
+  else head=`<div class="folder stack" data-tab="調查進行中">
+      <h2>調查小組辦公室</h2>
+      <p class="small">剩 <b>${left()}</b> 點。約談的人與證據都會存進卷宗；在卷宗裡兩兩比對，找出說不通的地方。</p>
+      <div class="row"><button class="btn ghost" data-finish>結束調查，撰寫結論</button></div>
+    </div>`;
+  const tabs=[['talk','約談'],['files','調閱'],['dossier',`卷宗 ${S.owned.length}`]];
+  const tabBar=`<div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button class="tab" role="tab" aria-selected="${S.tab===k}" data-tab-go="${k}">${l}</button>`).join('')}</div>`;
+  let body='';
+  if(S.tab==='talk') body=viewTalk(brief);
+  else if(S.tab==='files') body=viewFiles(brief);
+  else body=viewDossier();
+  return head+tabBar+`<div class="stack" style="margin-top:14px">${body}</div>`;
+}
+
+function actBtn(id,brief){
+  const it=I[id];
+  if(has(id)) return `<button class="act done" data-toggle-dossier="${id}"><span>${it.title.replace(/^[^：]+：/,'')}</span><span class="small">已入卷 · 查看</span></button>`;
+  let lock='';
+  if(brief) lock='小組組成後開放';
+  else if(it.req&&!it.req.every(has)) lock='先完成初次約談';
+  else if(it.reqC&&!found(it.reqC)) lock='需先找到相關矛盾';
+  else if(it.cost>left()) lock='點數不足';
+  return `<button class="act" data-buy="${id}" ${lock?'disabled':''}><span>${lock?'🔒 ':''}${it.title.replace(/^[^：]+：/,'')}${lock?`<br><span class="lock">${lock}</span>`:''}</span><span class="cost">${it.cost} 點</span></button>`;
+}
+
+function viewTalk(brief){
+  const map={lin:['T_lin','T_lin_q1','T_lin_q2'],han:['T_han','T_han_q1','T_han_q2'],hsu:['T_hsu','T_hsu_q'],du:['T_du'],ye:['T_ye']};
+  return Object.entries(map).map(([p,ids])=>`<div class="card person">
+    <div class="avatar" aria-hidden="true">${PEOPLE[p].ini}</div>
+    <div style="min-width:0"><h3>${PEOPLE[p].name}</h3><div class="small muted">${PEOPLE[p].role}</div>
+    <div class="actions">${ids.map(i=>actBtn(i,brief)).join('')}</div></div></div>`).join('')
+    + `<p class="small muted">蘇經理（人資）已送來座位方案，江昱哲（前同事）已離職，兩人不在約談名單中。</p>`;
+}
+function viewFiles(brief){
+  return `<div class="card" style="padding:12px 14px"><div class="actions" style="margin:0">${EV_LIST.map(i=>{const it=I[i];return actBtn(i,brief).replace(it.title,`<b class="mono" style="color:var(--accent)">${it.code}</b> ${it.title}`)}).join('')}</div></div>
+  <p class="small muted">錄音類證據較貴，但通常最客觀。</p>`;
+}
+function viewDossier(){
+  const order=[...FREE,...Object.keys(I).filter(k=>!FREE.includes(k))].filter(has);
+  return `<p class="small muted">點標題展開內容；勾選兩份資料後按「標記矛盾」。${S.found.length?`已找到：${S.found.map(c=>CONTRA.find(x=>x.id===c).title).join('、')}`:''}</p>`+order.map(id=>itemCard(id)).join('');
+}
+
+function renderMarkbar(){
+  let mb=document.getElementById('markbar');
+  const show=(S.phase==='brief'||S.phase==='hub')&&S.picks.length>0;
+  if(!show){ mb&&mb.remove(); return; }
+  if(!mb){ mb=document.createElement('div'); mb.id='markbar'; mb.className='markbar'; document.body.appendChild(mb); }
+  const names=S.picks.map(p=>I[p].code==='證詞'||I[p].code==='追問'?I[p].title.split('：')[0]+'·'+I[p].code:I[p].code).join(' ✕ ');
+  mb.innerHTML=`<div class="markbar-in"><span class="small">${names}${S.picks.length<2?'　再選一份':''}</span>
+    <span class="row"><button class="btn ghost" data-clearpick>取消</button><button class="btn" data-mark ${S.picks.length<2?'disabled':''}>標記矛盾</button></span></div>`;
+}
+
+/* ---------- 動作 ---------- */
+function buy(id){
+  const it=I[id]; if(has(id)||it.cost>left()) return;
+  S.spent+=it.cost; S.owned.push(id); S.open[id]=true;
+  toast(`已加入卷宗：${it.title}（−${it.cost} 點）`);
+  render();
+  document.querySelectorAll('.pt.used').forEach((e,i)=>{ if(i>=S.spent-it.cost) e.classList.add('flash'); });
+  if(S.spent>=4 && !S.proc.P2) return setTimeout(()=>askProc('P2'),500);
+  if(S.spent>=8 && !S.proc.P5) return setTimeout(()=>askProc('P5'),500);
+  if(left()===0) setTimeout(()=>toast('點數用完了。整理好卷宗後，就可以撰寫結論。'),2700);
+}
+
+function mark(){
+  const [a,b]=S.picks; S.picks=[];
+  const hit=CONTRA.find(c=>c.pairs.some(p=>(p[0]===a&&p[1]===b)||(p[0]===b&&p[1]===a)));
+  if(hit && found(hit.id)){ toast('這組矛盾已經標記過了。'); render(); return; }
+  if(hit){
+    S.found.push(hit.id); render();
+    overlay(`<div class="stack" style="align-items:flex-start"><span class="bigstamp">矛 盾</span>
+      <h2>${hit.title}</h2><p>${hit.text}</p><div class="note">解鎖：${hit.unlock}</div>
+      <button class="btn" data-close>繼續調查</button></div>`);
+    return;
+  }
+  S.wrong++;
+  const pa=I[a].party, pb=I[b].party;
+  let hint='這兩份資料講的不是同一件事，沒有直接衝突。試著找「同一件事、兩種說法」。';
+  if(pa===pb && (pa==='lin'||pa==='han')) hint='這兩份都是同一方的說法，彼此一致，沒有矛盾。';
+  render();
+  overlay(`<div class="stack"><h2>沒有發現矛盾</h2><p>${hint}</p><p class="small muted">錯誤標記會小幅扣分（事實認定 −4）。</p><button class="btn" data-close>好</button></div>`);
+}
+
+function askProc(p){
+  const P=PROC[p];
+  const opts=P.opts.filter(o=>!o.need||found(o.need));
+  const hint = p==='P1'&&found('C5') ? `<div class="note">你已經發現：人資方案不是隔離，反而讓兩人更靠近。</div>` : '';
+  overlay(`<div class="stack"><div class="eyebrow">程序關卡 · ${P.when}</div><h2>${P.title}</h2><p>${P.scene}</p>${hint}
+    <div class="stack" style="gap:8px">${opts.map(o=>`<button class="opt" data-proc="${p}" data-k="${o.k}">${o.t}</button>`).join('')}</div></div>`);
+}
+
+function answerProc(p,k){
+  const P=PROC[p], o=P.opts.find(x=>x.k===k);
+  S.proc[p]={k,s:o.s,v:o.v};
+  const vt={g:'處理得當',p:'部分正確',b:'不妥'}[o.v];
+  const missed = p==='P2'&&!found('C4') ? `<div class="note">你還沒發現公司規範的漏洞，所以沒看到最好的選項：轉介外部心理諮商。</div>` : '';
+  const best = o.v!=='g' ? `<p><b>較好的做法：</b>${P.opts.find(x=>x.v==='g').t}</p>` : '';
+  overlay(`<div class="stack" style="align-items:flex-start"><span class="verdict v-${o.v}">${vt}</span>
+    <p><b>你的選擇：</b>${o.t}</p><p>${o.why}</p>${best}${missed}
+    <div class="law"><b>依據：</b>${P.law}</div>
+    <p class="small"><b>原案：</b>${o.real}</p>
+    <button class="btn" data-procnext="${p}">繼續</button></div>`);
+  renderStatus();
+}
+function afterProc(p){
+  closeOverlay();
+  if(p==='P1'){ askProc('P3'); return; }
+  if(p==='P3'){ askProc('P4'); return; }
+  if(p==='P4'){ S.phase='hub'; S.tab='talk'; render(); toast('調查小組成立。現在可以開始約談與調閱。'); return; }
+  if(p==='P2' && S.spent>=8 && !S.proc.P5){ render(); setTimeout(()=>askProc('P5'),300); return; }
+  render();
+}
+
+/* ---------- 結論 ---------- */
+const DISPO=[
+  {k:'couns',t:'轉介外部心理諮商，並持續關懷申訴人',s:10},
+  {k:'sep',t:'工作場所區隔，重新釐清兩人的分工與聯繫方式',s:10},
+  {k:'rule',t:'修訂預防規範：當事人是醫護人員時，改由外部提供輔導',s:10},
+  {k:'punish',t:'懲處被申訴人（記過）',s:-10},
+  {k:'move',t:'將申訴人調離醫務室或資遣',s:-15},
+  {k:'pub',t:'向全廠公告調查結果，以正視聽',s:-10}
+];
+function viewConcl(){
+  const evs=[...FREE.filter(x=>x!=='G'),...EV_LIST].filter(has);
+  const c=S.concl||{a:'',b:[],c:[]};
+  const noHan=!has('T_han');
+  return `<div class="folder stack" data-tab="調查報告 · 結論">
+    <h2>寫下你的調查結論</h2>
+    <p class="small muted">結論分三部分。送出後就無法修改。</p>
+    ${noHan?`<div class="warnbox small">你整場調查都沒有約談被申訴人韓靜宜。準則要求給兩造陳述意見的機會；少了這一步，調查可能被認定有重大瑕疵。</div>`:''}
+    <fieldset class="stack" style="border:none;padding:0;margin:0" id="fa">
+      <legend><h3>一、霸凌是否成立？</h3></legend>
+      ${[['yes','成立'],['part','部分成立'],['no','不成立']].map(([v,l])=>`<label class="chk"><input type="radio" name="a" id="a-${v}" value="${v}" ${c.a===v?'checked':''}><span>${l}</span></label>`).join('')}
+    </fieldset>
+    <fieldset class="stack" style="border:none;padding:0;margin:0" id="fb">
+      <legend><h3>二、支持你結論的關鍵證據（最多 5 項）</h3></legend>
+      <p class="small muted">只能從你取得的證據中挑選。</p>
+      ${evs.map(e=>`<label class="chk"><input type="checkbox" name="b" id="b-${e}" value="${e}" ${c.b.includes(e)?'checked':''}><span><b class="mono">${I[e].code}</b> ${I[e].title}</span></label>`).join('')}
+    </fieldset>
+    <fieldset class="stack" style="border:none;padding:0;margin:0" id="fc">
+      <legend><h3>三、處置建議（可複選）</h3></legend>
+      ${DISPO.map(d=>`<label class="chk"><input type="checkbox" name="c" id="c-${d.k}" value="${d.k}" ${c.c.includes(d.k)?'checked':''}><span>${d.t}</span></label>`).join('')}
+    </fieldset>
+    ${S.err?`<p class="err" role="alert">${S.err}</p>`:''}
+    <div class="row"><button class="btn ghost" data-back>回到調查</button><button class="btn stampbtn" data-submit>送出結論，看法院怎麼判</button></div>
+  </div>`;
+}
+function readConcl(){
+  const a=(document.querySelector('input[name=a]:checked')||{}).value||'';
+  const b=[...document.querySelectorAll('input[name=b]:checked')].map(x=>x.value);
+  const c=[...document.querySelectorAll('input[name=c]:checked')].map(x=>x.value);
+  S.concl={a,b,c};
+}
+
+/* ---------- 計分 ---------- */
+function scores(){
+  const contra=Math.max(0,Math.min(60,S.found.length*12 - S.wrong*4));
+  const keyev=KEY_EV.filter(has).length*8;
+  const fact=contra+keyev;
+  const procDetail={};
+  PORDER.forEach(p=>{ let s=S.proc[p]?S.proc[p].s:0; if(p==='P4'&&!has('T_han')) s=0; procDetail[p]=s; });
+  const proc=Object.values(procDetail).reduce((x,y)=>x+y,0);
+  const c=S.concl;
+  const sa={no:40,part:15,yes:0}[c.a]||0;
+  let sb=0; c.b.forEach(e=>{ if(['E3','E4','E5','E6'].includes(e)) sb+=7.5; if(['E2','E13'].includes(e)) sb-=5; }); sb=Math.max(0,Math.min(30,sb));
+  let sc=0; c.c.forEach(k=>sc+=DISPO.find(d=>d.k===k).s); sc=Math.max(0,Math.min(30,sc));
+  const concl=Math.round(sa+sb+sc);
+  const total=fact+proc+concl;
+  const title= total>=270?'真相追尋者': total>=220?'可靠的調查委員': total>=150?'見習調查委員':'菜鳥調查員';
+  return {contra,keyev,fact,proc,procDetail,sa,sb,sc,concl,total,title};
+}
+
+function viewEnd(){
+  const r=scores(); const c=S.concl;
+  const aTxt={yes:'成立',part:'部分成立',no:'不成立'}[c.a];
+  const ach=[
+    ['兩造都聽了','約談兩位當事人，並各追問至少一題',has('T_han')&&has('T_lin')&&(has('T_lin_q1')||has('T_lin_q2'))&&(has('T_han_q1')||has('T_han_q2'))],
+    ['零誤判','沒有任何錯誤的矛盾標記',S.wrong===0&&S.found.length>0],
+    ['發現規範漏洞','找出「誰來輔導申訴人」的矛盾',found('C4')],
+    ['精準調查','事實認定滿分，而且點數沒用完',r.fact===100&&left()>0]
+  ];
+  const bad=[];
+  if(c.c.includes('punish')) bad.push('你的處置包含懲處被申訴人。結論若是不成立卻仍懲處，缺乏依據；結論若是成立，法院的看法也不支持。');
+  if(c.c.includes('move')) bad.push('將申訴人調離或資遣，屬於準則禁止的不利對待。');
+  if(c.c.includes('pub')) bad.push('向全廠公告調查結果違反保密義務（準則第 16 條）。');
+  return `<div class="cover" style="margin-top:20px">
+    <div class="mono">CASE 01 · 結案</div>
+    <p class="small" style="margin-top:6px">你的調查員稱號</p>
+    <h1>${r.title}</h1>
+    <p class="mono" style="margin-top:6px;font-size:1rem">總分 ${r.total} / 300</p>
+  </div>
+  <div class="sheet stack" style="margin-top:16px">
+    <div class="scores">
+      ${[['事實認定',r.fact,`矛盾 ${S.found.length}/5 · 關鍵證據 ${KEY_EV.filter(has).length}/5`],['程序正當',r.proc,'5 個程序關卡'],['與法院一致',r.concl,'結論、證據、處置']].map(([l,n,s])=>`<div class="score"><div class="small">${l}</div><div class="n">${n}</div><div class="bar"><i style="width:${n}%"></i></div><div class="small muted">${s}</div></div>`).join('')}
+    </div>
+    <div>${ach.map(([t,d,on])=>`<div class="ach ${on?'on':''}"><span class="ic" aria-hidden="true">${on?'✓':'·'}</span><span><b>${t}</b> <span class="small muted">${on?'已解鎖':'未解鎖'}：${d}</span></span></div>`).join('')}</div>
+  </div>
+
+  <div class="folder stack" data-tab="一 · 你 vs 法院">
+    <h2>你的結論，和法院的判決</h2>
+    <div class="vs">
+      <div><div class="eyebrow">你的結論</div><p style="font-size:1.2rem;font-weight:700;margin-top:4px">霸凌${aTxt}</p><p class="small muted">證據：${c.b.map(e=>I[e].code).join('、')||'未勾選'}</p></div>
+      <div><div class="eyebrow">法院認定</div><p style="font-size:1.2rem;font-weight:700;margin-top:4px">霸凌不成立</p><p class="small muted">被申訴人與公司都不必為「霸凌」負責。</p></div>
+    </div>
+    <div class="stack" style="align-items:flex-start;gap:8px;margin-top:6px">
+      <span class="bigstamp">但 公 司 敗 訴</span>
+      <p>法院判公司<b>賠償申訴人精神慰撫金</b>。理由不是霸凌，而是公司接到申訴、看到憂鬱症診斷之後，<b>沒有盡到保護員工的義務</b>：沒提供任何諮詢輔導，還把兩人調到只隔一台螢幕的座位。</p>
+    </div>
+    ${bad.length?`<div class="warnbox small">${bad.join('<br>')}</div>`:''}
+  </div>
+
+  <div class="folder stack" data-tab="二 · 程序回顧">
+    <h2>五個程序關卡</h2>
+    ${PORDER.map(p=>{const P=PROC[p]; const my=S.proc[p]; const o=my?P.opts.find(x=>x.k===my.k):null; const good=P.opts.find(x=>x.v==='g');
+      const s=r.procDetail[p]; const v=s===20?'g':s>0?'p':'b';
+      const note=p==='P4'&&!has('T_han')?'<p class="small" style="color:var(--stamp)">你選了正確規則，但實際上沒有約談被申訴人，這一關以 0 分計。</p>':'';
+      return `<div class="card" style="padding:14px"><div class="row" style="justify-content:space-between"><h3>${P.title}</h3><span class="verdict v-${v}" style="font-size:.9rem">${s} 分</span></div>
+      <p class="small" style="margin-top:6px"><b>你：</b>${o?o.t:'未作答'}</p>${o&&o.v!=='g'?`<p class="small"><b>較好的做法：</b>${good.t}</p>`:''}${note}
+      <p class="small muted" style="margin-top:4px"><b>原案：</b>${(o||good).real}</p><p class="small muted">依據：${P.law}</p></div>`}).join('')}
+    <p class="small muted">P1、P2 對應判決中法院認定的事實；P3–P5 判決沒有評價，依 2026 年 7 月施行的新準則設計。</p>
+  </div>
+
+  <div class="folder stack" data-tab="三 · 調查結束後">
+    <h2>你當時還看不到的事</h2>
+    <ul class="ev">
+      <li><b>刑事告訴：</b>申訴清單中的兩起事件，檢察官都作出不起訴處分。</li>
+      <li><b>精神鑑定：</b>法院委託醫院鑑定，確認申訴人的重度憂鬱症與工作壓力有因果關係，工作能力部分減損，但可望改善。多數事件造成的壓力程度被評為「中度或弱」。</li>
+      <li><b>勞動檢查：</b>主管機關檢查後，認定公司未依法辦理勞工健康保護事項。</li>
+      <li><b>離職後的私訊：</b>申訴人離職後，一位前同事傳訊說「再搞下去慘的是妳自己」。法院認為這是兩人私下話不投機，不構成恐嚇。</li>
+    </ul>
+  </div>
+
+  <div class="folder stack" data-tab="四 · 法院怎麼看">
+    <h2>用白話說判決</h2>
+    <h3>為什麼霸凌不成立？</h3>
+    <p>法院認為，霸凌要看行為是不是刻意、持續、帶有敵意。本案 16 件事橫跨三年半，時間零散，而且多半雙方各說各話。錄音顯示兩人互有心結，申訴人自己也曾對主管說對方「每天追劇吧」。工作分配是主管聽取意見後決定的；道歉信是申訴人自己寄出、還副本給主管。法院的結論是：兩人長期溝通不良、互相帶來壓力，但不能證明是單方面的霸凌。</p>
+    <h3>不成立，是說申訴人說謊嗎？</h3>
+    <p>不是。鑑定確認她真的因工作生病了。「受到傷害」和「對方構成霸凌」是兩件事，後者需要證據證明行為本身。</p>
+    <h3>那公司為什麼還要賠？</h3>
+    <p>因為保護義務從接到申訴那一刻就開始，不必等調查結果。依職業安全衛生法與勞工健康保護規則，公司要對健康高風險的員工做評估與個案管理；申訴人自己就是負責這項業務的護理師，但法律沒有把她排除在保護範圍外。公司規範說由醫護人員輔導，卻沒想到兩位醫護就是兩造；結果什麼協助都沒給，還把兩人安排得更近。</p>
+    <div class="note">霸凌不成立，不代表公司什麼都不用做。</div>
+    <h3>給上班族的三個提醒</h3>
+    <ul class="ev">
+      <li><b>申訴時要具體：</b>寫下日期、地點、在場的人、對方說了什麼；保留訊息與郵件。</li>
+      <li><b>把受傷和就醫留下紀錄：</b>診斷證明能證明生病，但要搭配事件本身的證據。</li>
+      <li><b>公司接到申訴後的第一件事是保護，</b>不是先判斷誰對誰錯。如果你是主管，記住這一點。</li>
+    </ul>
+  </div>
+
+  <div class="sheet stack" style="margin-top:16px">
+    <div class="eyebrow">原判決</div>
+    <p>臺灣新竹地方法院 114 年度勞訴字第 24 號民事判決（2026 年 3 月 27 日）</p>
+    <p class="small muted">本案為第一審判決，判決時仍可上訴，最新狀態請以司法院裁判書系統為準。遊戲中的人物、公司、產業、地點與時間皆經改寫；標示「改編」的內容為遊戲回推的情境，不改變判決認定的事實與結論。</p>
+    <p class="small"><a href="https://judgment.judicial.gov.tw/FJUD/default.aspx" target="_blank" rel="noopener" style="color:var(--accent)">前往司法院裁判書系統查詢</a></p>
+  </div>
+
+  <div class="cover" style="margin-top:16px">
+    <div class="mono">下一案預告 · CASE 02</div>
+    <h2 style="color:var(--folder-ink);margin-top:6px">權限消失的帳務員</h2>
+    <p class="small" style="margin-top:8px">一年多裡，她被調了好幾次工作地點。回到總公司帳務部門後，業務明明需要，系統權限卻一直沒開。是單純的行政疏失，還是刻意排除？</p>
+    <p class="small" style="margin-top:6px;opacity:.8">製作中</p>
+  </div>
+  <div class="row" style="margin-top:18px;justify-content:center"><button class="btn" data-restart>重玩，挑戰更高分</button></div>`;
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,[data-close]'); if(!t) return;
+  const d=t.dataset;
+  if(d.go){ if(d.go==='P1'){ askProc('P1'); return; } S.phase=d.go; S.tab='dossier'; render(); window.scrollTo(0,0); }
+  else if(d.toggle){ S.open[d.toggle]=!S.open[d.toggle]; render(); }
+  else if(d.toggleDossier){ S.tab='dossier'; S.open[d.toggleDossier]=true; render(); }
+  else if(d.tabGo){ S.tab=d.tabGo; render(); }
+  else if(d.buy){ buy(d.buy); }
+  else if('clearpick' in d){ S.picks=[]; render(); }
+  else if('mark' in d){ mark(); }
+  else if('close' in d){ closeOverlay(); }
+  else if(d.proc){ answerProc(d.proc,d.k); }
+  else if(d.procnext){ afterProc(d.procnext); }
+  else if('finish' in d){
+    if(left()>0 && !t.dataset.armed){ t.dataset.armed='1'; t.textContent=`還有 ${left()} 點，確定結束調查？`; t.classList.remove('ghost'); t.classList.add('stampbtn'); return; }
+    S.phase='concl'; S.picks=[]; render(); window.scrollTo(0,0);
+  }
+  else if('back' in d){ readConcl(); S.err=''; S.phase='hub'; render(); }
+  else if('submit' in d){
+    readConcl();
+    if(!S.concl.a){ S.err='請先選擇霸凌是否成立。'; render(); return; }
+    if(!S.concl.b.length){ S.err='請至少勾選一項關鍵證據。'; render(); return; }
+    if(S.concl.b.length>5){ S.err='關鍵證據最多 5 項，請取消幾項。'; render(); return; }
+    S.err=''; S.phase='end'; render(); window.scrollTo(0,0);
+  }
+  else if('restart' in d){ S=fresh(); render(); window.scrollTo(0,0); }
+});
+document.addEventListener('change',e=>{
+  const p=e.target.dataset.pick;
+  if(p){ if(e.target.checked){ if(S.picks.length>=2) S.picks.shift(); S.picks.push(p);} else S.picks=S.picks.filter(x=>x!==p); render(); return; }
+  if(e.target.name==='b'){ const n=document.querySelectorAll('input[name=b]:checked').length; if(n>5){ e.target.checked=false; toast('關鍵證據最多 5 項'); } }
+  if(S.phase==='concl' && S.err){ S.err=''; const er=document.querySelector('.err'); er&&er.remove(); }
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('#overlay').hidden && $('#overlay [data-close]')) closeOverlay(); });
+
+render();
+</script>
